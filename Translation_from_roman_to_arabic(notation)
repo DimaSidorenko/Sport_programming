@@ -1,0 +1,19 @@
+vector<pair<int, string>> rim = { {100, "C"}, {90, "XC" }, { 50, "L"}, { 40, "XL"}, { 10, "X"}, { 9, "IX"}, { 5, "V"}, { 4, "IV"}, { 1, "I"} };
+string translate(int x) {
+	string s;
+ 
+	for (auto p : rim)
+	{
+		int z = p.first;
+		string c = p.second;
+ 
+		while (x >= z)
+		{
+			s += c;
+			x -= z;
+		}
+	}
+ 
+	return s;
+}
+ 

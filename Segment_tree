@@ -80,21 +80,3 @@ void solve() {
 }
 
 
-
-
-int main() {
-
-	ios::sync_with_stdio(false);
-	#ifdef DEBUG
-        freopen("in.txt", "r", stdin);
-	#endif // DEBUG
-	cin.tie(0);
-	cout.tie(0);
-//    int q;
-//    cin >> q;
-//    while (q--)
-    solve();
-}
-
-
-

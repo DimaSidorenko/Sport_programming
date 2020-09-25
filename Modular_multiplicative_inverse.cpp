@@ -21,6 +21,9 @@ long long binpow(long long a, long long n) {
 	}
 }
 
-ll C(int n, int k) {
+ll C(ll n, ll k) {
+	if (n < k)
+		return 0;
 	return fact[n] * binpow(fact[k], MOD - 2) % MOD * binpow(fact[n - k], MOD - 2) % MOD;
 }
+

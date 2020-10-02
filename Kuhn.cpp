@@ -37,8 +37,10 @@ ll kuhn(int n, int m) {
 }
 
 //вывод 
-for (int i = n; i < n + m; i++){
-  cout << i << " " << mt[i] << en;
+for (int i = n; i < n + m; i++) {
+	if (mt[i] != -1) {
+		cout << mt[i] + 1  << " " << i + 1 << en;
+	}
 }
 
 

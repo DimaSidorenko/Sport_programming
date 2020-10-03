@@ -43,4 +43,5 @@ for (int i = n; i < n + m; i++) {
 	}
 }
 
+//Оптимизация: https://codeforces.com/blog/entry/17023?locale=ru
 

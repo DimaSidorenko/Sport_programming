@@ -1,0 +1,37 @@
+// возвращает ответ и путь составляющий этот ответ
+//st - номер стартовой вершины, nd - номер конечное вершины
+pair<int, vector<int>> Dijkstra(vector<vector<pair<int, int>>> &g, int st, int nd) {
+	const ll INF = 1e18;
+	int n = g.size();
+	vector<ll> d(n, ll(1e18));
+	vector<int> p(n, -1);
+	vector<bool> used(n);
+
+	d[st] = 0;
+	
+	//находим кратчайшие пути
+	for (int i = 0; i < n; i++) {	
+		int cur = -1;
+		for (int i = 0; i < n; i++) {
+			if (!used[i] && (cur == -1 || d[i] < d[cur])) {
+				cur = i;
+			}
+		}
+		if (d[cur] == INF) {
+			break;
+		}
+		used[cur] = true;
+		for (auto to : g[cur]) {
+			if (d[to.first] > d[cur] + to.second) {
+				d[to.first] = d[cur] + to.second;
+				p[to.first] = cur;
+			}
+		}
+	}
+
+	vector<int> path;
+	for (int v = nd; v != -1; v = p[v])
+		path.push_back(v);
+	reverse(path.begin(), path.end());
+	return { d[nd], path };
+}

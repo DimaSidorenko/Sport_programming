@@ -13,21 +13,16 @@ struct Node {
 
 Node bor[NMAX];
 
-vector<string> patterns(n); // массив строк
-string txt; // текст для поиска вхождений
+int cur_free = 2; // индекс свободной вершины
+int root = 1; // индекс вершины корня
 
-int cur = 1;
-int cur_free = 2;
-int root = 1;
-
-for (int ix = 1; ix <= n; ix++)
+void add_string_to_bor(string s, int ix = -1) // сама строка + можно добавить ее индекс
 {
-	string s = patterns[i-1];
-	cur = root;
+	int cur = root;
 	for (char c : s)
 	{
 		int c_int = c - 'a';
-			
+
 		if (bor[cur].nxt[c_int])
 		{
 			cur = bor[cur].nxt[c_int];
@@ -49,58 +44,73 @@ for (int ix = 1; ix <= n; ix++)
 	bor[cur].strIndex = ix;
 }
 
-queue<int> q;
-bor[root].suffLink = bor[root].longSuffLink = root;
-cur = root;
-for (int i = 0; i < ALPHABETSIZE; i++)
+void create_suff_links() // создание суфф ссылок в боре(длинных и обычных)
 {
-	int nxt_node = bor[cur].nxt[i];
-	if (nxt_node)
+	int cur;
+	queue<int> q;
+	bor[root].suffLink = bor[root].longSuffLink = root;
+	cur = root;
+	for (int i = 0; i < ALPHABETSIZE; i++)
 	{
-		q.push(nxt_node);
-		bor[nxt_node].suffLink = bor[nxt_node].longSuffLink = root;
-	}
-}
-
-while (!q.empty())
-{
-	cur = q.front(); q.pop();
-	for (int c_int = 0; c_int < ALPHABETSIZE; c_int++)
-	{
-		int nxt_node = bor[cur].nxt[c_int];
+		int nxt_node = bor[cur].nxt[i];
 		if (nxt_node)
 		{
 			q.push(nxt_node);
-			int suffLinkCurrentNode = bor[cur].suffLink;
-				
-			while (suffLinkCurrentNode != root && bor[suffLinkCurrentNode].nxt[c_int] == 0)
-			{
-				suffLinkCurrentNode = bor[suffLinkCurrentNode].suffLink;
-			}
+			bor[nxt_node].suffLink = bor[nxt_node].longSuffLink = root;
+		}
+	}
 
-			// update suff link
-			if (bor[suffLinkCurrentNode].nxt[c_int] != 0)
+	while (!q.empty())
+	{
+		cur = q.front(); q.pop();
+		for (int c_int = 0; c_int < ALPHABETSIZE; c_int++)
+		{
+			int nxt_node = bor[cur].nxt[c_int];
+			if (nxt_node)
 			{
-				bor[nxt_node].suffLink = bor[suffLinkCurrentNode].nxt[c_int];
-			}
-			else
-			{
-				bor[nxt_node].suffLink = root;
-			}
-				
-			// update long suff link
-			if (bor[bor[nxt_node].suffLink].isTerminal)
-			{
-				bor[nxt_node].longSuffLink = bor[nxt_node].suffLink;
-			}
-			else
-			{
-				bor[nxt_node].longSuffLink = bor[bor[nxt_node].suffLink].longSuffLink;
+				q.push(nxt_node);
+				int suffLinkCurrentNode = bor[cur].suffLink;
+
+				while (suffLinkCurrentNode != root && bor[suffLinkCurrentNode].nxt[c_int] == 0)
+				{
+					suffLinkCurrentNode = bor[suffLinkCurrentNode].suffLink;
+				}
+
+				// update suff link
+				if (bor[suffLinkCurrentNode].nxt[c_int] != 0)
+				{
+					bor[nxt_node].suffLink = bor[suffLinkCurrentNode].nxt[c_int];
+				}
+				else
+				{
+					bor[nxt_node].suffLink = root;
+				}
+
+				// update long suff link
+				if (bor[bor[nxt_node].suffLink].isTerminal)
+				{
+					bor[nxt_node].longSuffLink = bor[nxt_node].suffLink;
+				}
+				else
+				{
+					bor[nxt_node].longSuffLink = bor[bor[nxt_node].suffLink].longSuffLink;
+				}
 			}
 		}
 	}
 }
-	
+
+
+/* Это пример использования построенного бора, проверка на вхождение
+
+vector<string> patterns(n); // массив строк
+string txt; // текст для поиска вхождений
+
+for (int i = 0; i < n; i++)
+	add_string_to_bor(patterns[i], i);
+
+create_suff_links();
+
 vector<bool> was(n + 1, 0); // массив для проверки была ли строка как подстрока в тексте
 cur = root;
 for (char c : txt)
@@ -130,8 +140,8 @@ for (char c : txt)
 }
 
 for (int i = 1; i <= n; i++) // была ли i-ая строка в тексте
-	{
-		if (was[i])
-			cout << "Yes" << en;
-		else cout << "No" << en;
-	}
+{
+	if (was[i])
+		cout << "Yes" << en;
+	else cout << "No" << en;
+}*/

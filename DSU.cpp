@@ -1,14 +1,14 @@
 int sz[SIZE];
 int p[SIZE];
 
-int get(int v)
+int get(int v) // получение лидера множества
 {
 	if (p[v] != v)
 		p[v] = get(p[v]);
 	return p[v];
 }
 
-void union_sets(int a, int b)
+void union_sets(int a, int b) // слияние двух множеств o_O
 {
 	a = get(a);
 	b = get(b);

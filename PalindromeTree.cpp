@@ -8,14 +8,14 @@ struct Node
 	int suff_edge;
 };
  
-Node tree[100005];
+Node tree[MAX];
  
 int curNode;
 int ptr;
  
 string s;
  
-void insertNew(int i)
+void insertNew(int i) // создание новой вершины в дереве палиндромов, передается индекс добавл. символа в строке
 {
 	int tmp = curNode;
 	//максимальный суфф палиндром текущего палиндрома
@@ -63,7 +63,7 @@ void insertNew(int i)
 	tree[curNode].suff_edge = tree[tmp].next[s[i]-'a'];
 }
  
-void solve(int t) {
+void solve(int t) { // пример построения дерева палиндромов
 	int n; cin >> n;
 	cin >> s;
 	

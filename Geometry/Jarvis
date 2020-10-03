@@ -1,0 +1,84 @@
+struct point {
+	int x, y;
+	point(int _x = 0, int _y = 0) {
+		x = _x;
+		y = _y;
+	}
+	
+	point operator - (point p) {
+		return point(x - p.x, y - p.y);
+	}
+
+	//dot product(скалярное произведение)
+	int operator * (point p) {
+		return x * p.x + y * p.y;
+	}
+	
+	//cross product(векторное произведение)
+	int operator ^ (point p) {
+		return x * p.y - y * p.x;
+	}
+	
+	//значение вектора
+	int len2() {
+		return x * x + y * y;
+	}
+
+	bool operator != (point p) {
+		return x != p.x || y != p.y;
+	}
+
+	bool operator == (point p) {
+		return x == p.x && y == p.y;
+	}
+};
+
+bool operator < (point a, point b) {
+	if ((a ^ b) != 0) {
+		return (a ^ b) > 0;
+	}
+	return a.len2() > b.len2();
+}
+
+istream& operator >> (istream &in, point &p) {
+	in >> p.x >> p.y;
+	return in;
+}
+
+ostream& operator << (ostream &out, point& p) {
+	out << p.x << " " << p.y;
+	return out;
+}
+
+
+//возвращает массив из точек образующих выпуклую оболочку. Обход - против часовой стрелки.
+vector<point> Jarvis(vector<point> p) {
+	int n = p.size();
+	vector<point> p(n);
+
+	//находим самую левую(нижнюю точку)
+	point s = p[0];
+	for (int i = 1; i < n; i++) {
+		if (p[i].x < s.x) {
+			s = p[i];
+		}
+		if (p[i].x == s.x && p[i].y < s.y) {
+			s = p[i];
+		}
+	}
+
+	//находим внутреннюю оболочку
+	vector<point> ans;
+	do {
+		ans.push_back(s);
+		point q = p[0];
+		for (int i = 1; i < n; i++) {
+			if ((p[i] - s) < (q - s)) {
+				q = p[i];
+			}
+		}
+		s = q;
+	} while (s != ans[0]);
+
+	return ans;
+}

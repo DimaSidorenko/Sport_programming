@@ -1,3 +1,5 @@
+// k считается с 0 => [0, 1, 2, 3] 0 - ой элемент = 0.
+
 const int SEGTREE_SIZE = 1e5;
 	struct segtree {
 

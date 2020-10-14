@@ -100,48 +100,38 @@ void create_suff_links() // создание суфф ссылок в боре(�
 	}
 }
 
-
-/* Это пример использования построенного бора, проверка на вхождение
-
-vector<string> patterns(n); // массив строк
-string txt; // текст для поиска вхождений
-
-for (int i = 0; i < n; i++)
-	add_string_to_bor(patterns[i], i);
-
-create_suff_links();
-
-vector<bool> was(n + 1, 0); // массив для проверки была ли строка как подстрока в тексте
-cur = root;
-for (char c : txt)
+vector<bool> get_occurrences_in_text(string& text, vector<string>& patterns)
 {
-	int c_int = c - 'a';
+	int n = patterns.size();
+	for (int i = 0; i < n; i++)
+		add_string_to_bor(patterns[i], i);
 
-	while (cur != root && bor[cur].nxt[c_int] == 0)
+	create_suff_links();
+
+	vector<bool> occurs(n);
+
+	int cur = root;
+
+	for (char c: text)
 	{
-		cur = bor[cur].suffLink;
+		int c_int = c - 'a';
+
+		while (cur != root && bor[cur].nxt[c_int] == 0)
+		{
+			cur = bor[cur].suffLink;
+		}
+		if (bor[cur].nxt[c_int])
+			cur = bor[cur].nxt[c_int];
+		else
+			cur = root;
+		int curLongSuffLink = cur;
+		while (curLongSuffLink != root)
+		{
+			if (bor[curLongSuffLink].isTerminal)
+				occurs[bor[curLongSuffLink].strIndex] = 1;
+			curLongSuffLink = bor[curLongSuffLink].longSuffLink;
+		}
 	}
 
-	if (bor[cur].nxt[c_int])
-		cur = bor[cur].nxt[c_int];
-	else
-		cur = root;
-
-	int curLongSuffLink = cur;
-	while (curLongSuffLink != root)
-	{
-
-		if (bor[curLongSuffLink].isTerminal)
-			was[bor[curLongSuffLink].strIndex] = 1;
-
-		curLongSuffLink = bor[curLongSuffLink].longSuffLink;
-	}
-
+	return occurs;
 }
-
-for (int i = 1; i <= n; i++) // была ли i-ая строка в тексте
-{
-	if (was[i])
-		cout << "Yes" << en;
-	else cout << "No" << en;
-}*/

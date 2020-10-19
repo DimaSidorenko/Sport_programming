@@ -1,4 +1,4 @@
-vector<int> get_items_with_max_value(vector<pair<int, int>> items, int max_weight) { // возвращает предметы для макс. стоимости
+vector<int> get_items_with_max_value(vector<pair<int, int>> &items, int max_weight) { // возвращает предметы для макс. стоимости
 	int n = items.size();
 	vector<vector<int>> dp(n+1, vector<int>(max_weight+1));
 

@@ -1,0 +1,32 @@
+const ll X = 31;
+const ll M = 100000000000;
+//vector<ll> xpow;
+//vector<ll> p;
+
+//заполнение массива степеней X
+void fillxpow(int slength, vector<ll>& xpow) // xpow - массив степеней X
+{
+	xpow[0] = 1;
+	ll curx = 1;
+	for (int i = 1; i <=slength; i++)
+	{
+		xpow[i]=(curx * X)%M;
+		curx = (curx * X);
+	}
+
+}
+//хэши префиксов строки
+void hashpref(string s, vector<ll>& p) //p - массив хэшей префиксов 
+{
+	p.push_back(0);
+	for (ll i = 1; i <= s.length(); i++)
+	{
+		p.push_back((p[i - 1] * X + s[i - 1]) % M);
+	}
+}
+
+//хэш подстроки с l до r
+ll hashpodstr(int l,int r,vector<ll>&p ,vector<ll>& xpow) //xpow - степень иксов, p - массив хэшей префиксов 
+{
+	return p[r+1] - (p[l] * xpow[r-l+1])%M;
+}

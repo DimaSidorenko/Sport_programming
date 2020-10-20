@@ -4,7 +4,7 @@ const ll M = 100000000000;
 //vector<ll> p;
 
 //заполнение массива степеней X
-void fillxpow(int slength, vector<ll>& xpow) // xpow - массив степеней X
+void fillxpow(int slength, vector<ll>& xpow) // slength -длина строки S, xpow - массив степеней X
 {
 	xpow[0] = 1;
 	ll curx = 1;

@@ -1,0 +1,125 @@
+const int SEGTREE_SIZE = 1e5;
+struct segtree {
+ 
+	struct node {
+		ll set;
+		ll min;
+	};
+ 
+	vector<node> t;
+	int size;
+ 
+	node const ZERO = { 0, 0 };
+	ll const NO_OPERATION = 1e18 + 5;
+	ll const NEUTRAL_ELEM = 1e18 + 6;
+ 
+	void modify_op(ll& a, ll b, ll len) {
+		if (b == NO_OPERATION)
+			return;
+		if (a == NO_OPERATION) {
+			a =  b * len;
+		}
+		else {
+			a += b * len;
+		}
+	}
+ 
+ 
+	ll sum_op(ll a, ll b) {
+		return min(a, b);
+	}
+ 
+ 
+	void push(int v, int tl, int tr) {
+		if (t[v].set == NO_OPERATION || tr - tl == 1) {
+			return;
+		}
+		int tm = (tr + tl) / 2;
+		modify_op(t[v * 2 + 1].set, t[v].set, 1);
+		modify_op(t[v * 2 + 1].min, t[v].set, 1);
+ 
+		modify_op(t[v * 2 + 2].set, t[v].set, 1);
+		modify_op(t[v * 2 + 2].min, t[v].set, 1);
+		t[v].set = NO_OPERATION;
+	}
+ 
+ 
+	void init(int n) {
+		size = 1;
+		while (size < n) {
+			size *= 2;
+		}
+		t.assign(2 * size, ZERO);
+	}
+ 
+	segtree(int n = SEGTREE_SIZE) {
+		init(n);
+	}
+ 
+	segtree(vector<long long>& a) {
+		init(a.size());
+		build(a);
+	}
+ 
+ 
+	void build(vector<long long>& a, int v, int tl, int tr) {
+		if (tr - tl == 1) {
+			if (tl < a.size())
+				t[v] = ZERO;
+			return;
+		}
+		int tm = (tr + tl) / 2;
+		build(a, v * 2 + 1, tl, tm);
+		build(a, v * 2 + 2, tm, tr);
+		t[v].min = sum_op(t[v * 2 + 1].min, t[v * 2 + 2].min);
+	}
+ 
+	void build(vector<long long>& a) {
+		build(a, 0, 0, size);
+	}
+ 
+	void modify(int v, int tl, int tr, int l, int r, ll val) {
+		push(v, tl, tr);
+		if (tr <= l || tl >= r) {
+			return;
+		}
+ 
+		if (l <= tl && tr <= r) {
+			modify_op(t[v].set, val, 1);
+			modify_op(t[v].min, val, 1);
+			return;
+		}
+ 
+		int tm = (tl + tr) / 2;
+ 
+		modify(v * 2 + 1, tl, tm, l, r, val);
+		modify(v * 2 + 2, tm, tr, l, r, val);
+ 
+		t[v].min = sum_op(t[v * 2 + 1].min, t[v * 2 + 2].min);
+	}
+ 
+	void modify(int l, int r, ll val) {
+		modify(0, 0, size, l, r, val);
+	}
+ 
+	ll get_min(int v, int tl, int tr, int l, int r) {
+		push(v, tl, tr);
+		if (tr <= l || tl >= r) {
+			return NEUTRAL_ELEM;
+		}
+ 
+		if (l <= tl && tr <= r) {
+			return t[v].min;
+		}
+ 
+		int tm = (tl + tr) / 2;
+ 
+		auto g1 = get_min(v * 2 + 1, tl, tm, l, r);
+		auto g2 = get_min(v * 2 + 2, tm, tr, l, r);
+		return sum_op(g1, g2);
+	}
+ 
+	ll get_min(int l, int r) {
+		return get_min(0, 0, size, l, r);
+	}
+};

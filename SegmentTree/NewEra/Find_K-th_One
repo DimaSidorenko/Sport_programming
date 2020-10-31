@@ -1,83 +1,152 @@
-// k считается с 0 => [0, 1, 2, 3] 0 - ой элемент = 0.
-
 const int SEGTREE_SIZE = 1e5;
-	struct segtree {
-
-		vector<int> t;
-		int size;
-
-		int combine(int a, int b) {
-			return a + b;
-		}
-
-		void init(int n) {
-			size = 1;
-			while (size < n) {
-				size *= 2;
-			}
-			t.assign(2 * size, 0);
-		}
-
-		segtree(int n = SEGTREE_SIZE) {
-			init(n);
-		}
-
-		segtree(vector<long long> &a) {
-			init(a.size());
-			build(a);
-		}
-
-
-		void build(vector<long long> &a, int v, int tl, int tr) {
-			if (tr - tl == 1) {
-				if (tl < a.size())
-					t[v] = a[tl];
-				return;
-			}
-			int tm = (tr + tl) / 2;
-			build(a, v * 2 + 1, tl, tm);
-			build(a, v * 2 + 2, tm, tr);
-			t[v] = combine(t[v * 2 + 1], t[v * 2 + 2]);
-		}
-
-		void build(vector<long long> &a) {
-			build(a, 0, 0, size);
-		}
-
-		void set(int v, int tl, int tr, int pos) {
-			if (tr - tl == 1) {
-				t[v] = 1 - t[v];
-				return;
-			}
-			int tm = (tl + tr) / 2;
-			if (pos < tm) {
-				set(2 * v + 1, tl, tm, pos);
-			}
-			else {
-				set(2 * v + 2, tm, tr, pos);
-			}
-			t[v] = combine(t[v * 2 + 1], t[v * 2 + 2]);
-		}
-
-		void set(int pos) {
-			set(0, 0, size, pos);
-		}
-
-		int find(int v, int tl, int tr, int k) {
-			if (tr == tl + 1) {
-				return tl;
-			}
-			int tm = (tl + tr) / 2;
-			if (k < t[2 * v + 1]) {
-				return find(2 * v + 1, tl, tm, k);
-			}
-			else {
-				k -= t[2 * v + 1];
-				return find(2 * v + 2, tm, tr, k);
-			}
-		}
-
-		int find(int k) {
-			return find(0, 0, size, k);
-		}
+ 
+struct segtree {
+ 
+	struct node {
+		ll set;
+		ll val;
 	};
+ 
+	
+	vector<node> t;
+	int size;
+ 
+	
+	ll const NO_OPERATION = 0;
+	node const ZERO = {0, 0};
+ 
+	ll const NEUTRAL_ELEM = 0;
+	ll const MOD = 1e9 + 7;
+ 
+	void modify_op(ll& a, ll b, ll len) {
+		if (b == NO_OPERATION)
+			return;
+		a ^= b;
+	}
+ 
+	ll sum_op(ll a, ll b) {
+		return a + b;
+	}
+	
+	void update(ll &val, int len) {
+		val = len - val;
+	}
+ 
+	void push(int v, int tl, int tr) {
+		if (t[v].set == NO_OPERATION || tr - tl == 1) {
+			return;
+		}
+		int tm = (tr + tl) / 2;
+		
+		modify_op(t[v * 2 + 1].set, t[v].set, 1);
+		update(t[v * 2 + 1].val, tm - tl);
+ 
+		modify_op(t[v * 2 + 2].set, t[v].set, 1);
+		update(t[v * 2 + 2].val, tr - tm);
+ 
+		t[v].set = NO_OPERATION;
+	}
+ 
+	void init(int n) {
+		size = 1;
+		while (size < n) {
+			size *= 2;
+		}
+		t.assign(2 * size, ZERO);
+	}
+ 
+	segtree(int n = SEGTREE_SIZE) {
+		init(n);
+	}
+ 
+	segtree(vector<long long>& a) {
+		init(a.size());
+		build(a);
+	}
+ 
+ 
+	void build(vector<long long>& a, int v, int tl, int tr) {
+		if (tr - tl == 1) {
+			if (tl < a.size())
+				t[v] = ZERO;
+			return;
+		}
+		int tm = (tr + tl) / 2;
+		build(a, v * 2 + 1, tl, tm);
+		build(a, v * 2 + 2, tm, tr);
+		t[v].val = sum_op(t[v * 2 + 1].val, t[v * 2 + 2].val);
+	}
+ 
+	void build(vector<long long>& a) {
+		build(a, 0, 0, size);
+	}
+ 
+	void modify(int v, int tl, int tr, int l, int r, ll val) {
+		push(v, tl, tr);
+		if (tr <= l || tl >= r) {
+			return;
+		}
+ 
+		if (l <= tl && tr <= r) {
+			modify_op(t[v].set, val, 1);
+			update(t[v].val, tr - tl);
+			return;
+		}
+ 
+		int tm = (tl + tr) / 2;
+ 
+		modify(v * 2 + 1, tl, tm, l, r, val);
+		modify(v * 2 + 2, tm, tr, l, r, val);
+ 
+		t[v].val = sum_op(t[v * 2 + 1].val, t[v * 2 + 2].val);
+	}
+ 
+	void modify(int l, int r, ll val) {
+		modify(0, 0, size, l, r, val);
+	}
+ 
+	ll get_val(int v, int tl, int tr, int l, int r) {
+		push(v, tl, tr);
+		if (tr <= l || tl >= r) {
+			return NEUTRAL_ELEM;
+		}
+ 
+		if (l <= tl && tr <= r) {
+			return t[v].val;
+		}
+ 
+		int tm = (tl + tr) / 2;
+ 
+		auto g1 = get_val(v * 2 + 1, tl, tm, l, r);
+		auto g2 = get_val(v * 2 + 2, tm, tr, l, r);
+		return sum_op(g1, g2);
+	}
+ 
+	ll get_val(int l, int r) {
+		return get_val(0, 0, size, l, r);
+	}
+ 
+	int find(int v, int tl, int tr, int k) {
+		push(v, tl, tr);
+		if (tr == tl + 1) {
+			return tl;
+		}
+		int tm = (tl + tr) / 2;
+		if (k < t[2 * v + 1].val) {
+ 
+			ll res = find(2 * v + 1, tl, tm, k);
+			t[v].val = sum_op(t[v * 2 + 1].val, t[v * 2 + 2].val);
+			return res;
+		}
+		else {
+			k -= t[2 * v + 1].val;
+			ll res = find(2 * v + 2, tm, tr, k);
+			t[v].val = sum_op(t[v * 2 + 1].val, t[v * 2 + 2].val);
+			return res;
+		}
+	}
+ 
+	int find(int k) {
+		return find(0, 0, size, k);
+	}
+};

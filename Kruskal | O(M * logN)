@@ -1,0 +1,63 @@
+const int NMAX = 1e5 + 17;
+
+ll p[NMAX];
+ll sz[NMAX];
+
+
+void init() {
+	for (int i = 0; i < NMAX; i++) {
+		p[i] = i;
+		sz[i] = 1;
+	}
+}
+
+int get(int v) // получение лидера множества
+{
+	if (p[v] != v)
+		p[v] = get(p[v]);
+	return p[v];
+}
+
+void union_sets(int a, int b) // слияние двух множеств o_O
+{
+	a = get(a);
+	b = get(b);
+
+	if (a == b) return;
+
+	if (sz[a] > sz[b]) // a < b
+		swap(a, b);
+
+	p[a] = b;
+	sz[b] += sz[a];
+}
+
+struct edge {
+	int u; // from 
+	int v; // where to
+	int w; // weight
+};
+
+
+bool operator < (edge e1, edge e2) {
+	return e1.w < e2.w;
+}
+
+//es = edges, return edges, that MST contain.
+vector<edge> Kruskal(vector<edge> es) {
+	sort(es.begin(), es.end());
+	
+	vector<edge> ans;
+	
+	int m = es.size();
+	for (auto cur_edge : es) {
+		int a = get(cur_edge.u);
+		int b = get(cur_edge.v);
+		if (a != b) {
+			union_sets(a, b);
+			ans.pb(cur_edge);
+		}
+	}
+
+	return ans;
+}

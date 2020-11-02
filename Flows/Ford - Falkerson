@@ -1,0 +1,39 @@
+struct MaxFlow {
+	int N;
+	vector<vector<int>> cap; // capa
+	vector<int> used;
+
+	MaxFlow(int N) :
+		N(N), cap(N, vector<int>(N)), used(N) {}
+
+	void AddEdge(int from, int to, int cap) {
+		this->cap[from][to] += cap;
+	}
+
+	int Augment(int here, int sink, int amt) {
+		if (here == sink) return amt;
+		used[here] = true;
+		for (int i = 0; i < N; ++i) {
+			if (!used[i] && cap[here][i]) {
+				int ret = Augment(i, sink, min(amt, cap[here][i]));
+				if (ret) {
+					cap[here][i] -= ret;
+					cap[i][here] += ret;
+					return ret;
+				}
+			}
+		}
+		return 0;
+	}
+
+	int GetMaxFlow(int source, int sink) {
+		int ret = 0;
+		while (true) {
+			fill(used.begin(), used.end(), false);
+			int flow = Augment(source, sink, INF);
+			if (!flow) break;
+			ret += flow;
+		}
+		return ret;
+	}
+};

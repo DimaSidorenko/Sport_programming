@@ -1,6 +1,6 @@
 struct MaxFlow {
 	int N;
-	vector<vector<int>> cap; // capa
+	vector<vector<int>> cap;
 	vector<int> used;
 
 	MaxFlow(int N) :
@@ -10,12 +10,12 @@ struct MaxFlow {
 		this->cap[from][to] += cap;
 	}
 
-	int Augment(int here, int sink, int amt) {
+	int dfs(int here, int sink, int amt) {
 		if (here == sink) return amt;
 		used[here] = true;
 		for (int i = 0; i < N; ++i) {
 			if (!used[i] && cap[here][i]) {
-				int ret = Augment(i, sink, min(amt, cap[here][i]));
+				int ret = dfs(i, sink, min(amt, cap[here][i]));
 				if (ret) {
 					cap[here][i] -= ret;
 					cap[i][here] += ret;
@@ -30,7 +30,7 @@ struct MaxFlow {
 		int ret = 0;
 		while (true) {
 			fill(used.begin(), used.end(), false);
-			int flow = Augment(source, sink, INF);
+			int flow = dfs(source, sink, INF);
 			if (!flow) break;
 			ret += flow;
 		}

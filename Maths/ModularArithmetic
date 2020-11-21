@@ -1,0 +1,20 @@
+long long binpow(long long a, long long n) {
+	if (n == 0)
+		return 1;
+	if (n % 2 == 1)
+		return (binpow(a, n - 1) * a) % MOD;
+	else {
+		long long b = binpow(a, n / 2) % MOD;
+		return (b * b) % MOD;
+	}
+}
+
+int mul(int x, int y)
+{
+	return (x * 1ll * y) % MOD;
+}
+
+int divide(int x, int y)
+{
+	return mul(x, binpow(y, MOD - 2));
+}

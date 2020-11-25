@@ -1,0 +1,43 @@
+int n;
+vector<int> g[NMAX];
+char cl[NMAX];
+int p[NMAX];
+int cycle_st = -1, cycle_end = -1;
+ 
+bool dfs(int v, int parent = -1) {
+	cl[v] = 1;
+	for (size_t i = 0; i < g[v].size(); ++i) {
+		int to = g[v][i];
+		
+		//needed only for undirected graphs
+		if (to == parent)
+			continue;
+		///////////////////////////////////
+		if (cl[to] == 0) {
+			p[to] = v;
+			if (dfs(to, v))  return true;
+		}
+		else if (cl[to] == 1) {
+			cycle_end = v;
+			cycle_st = to;
+			return true;
+		}
+	}
+	cl[v] = 2;
+	return false;
+}
+ 
+ 
+vector<int> get_cycle() {
+	vector<int> cycle;
+	
+	cycle.push_back(cycle_st);
+	for (int v = cycle_end; v != cycle_st; v = p[v])
+		cycle.push_back(v);
+	cycle.push_back(cycle_st);
+	
+	reverse(cycle.begin(), cycle.end());
+	
+	return cycle;
+}
+ 

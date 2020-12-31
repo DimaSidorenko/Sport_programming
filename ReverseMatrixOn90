@@ -1,14 +1,16 @@
-cons int row = 10;
-cons int col = 10;
-//transpose
-for(int r = 0; r < row; r++) {
-  for(int c = r; c < col; c++) {  
-    swap(Array[r][c], Array[c][r]);
-  }
-}
-//reverse elements on row order
-for(int r = 0; r < row; r++) {
-    for(int c =0; c < col/2; c++) {
-      swap(Array[r][c], Array[r][col-c-1])
-    }
+void transpose(vector<vector<char>> &a) {
+	const int row = a.size();
+	const int col = a[0].size();
+	//transpose
+	for (int r = 0; r < row; r++) {
+		for (int c = r; c < col; c++) {
+			swap(a[r][c], a[c][r]);
+		}
+	}
+	//reverse elements on row order
+	for (int r = 0; r < row; r++) {
+		for (int c = 0; c < col / 2; c++) {
+			swap(a[r][c], a[r][col - c - 1]);
+		}
+	}
 }

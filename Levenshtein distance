@@ -1,0 +1,40 @@
+//можно поставить и побольше
+const int N = 200;
+int dp[N][N];
+string s, t;
+
+int calc(int i, int j)
+{
+	if (i < 0 || j < 0)
+		return 0;
+
+	if (dp[i][j] != -1)
+		return dp[i][j];
+
+	if (i == 0)
+		return dp[i][j] = j;
+	if (j == 0)
+		return dp[i][j] = i;
+
+
+	return dp[i][j] = min({ calc(i,j - 1) + 1, calc(i - 1,j) + 1, calc(i - 1,j - 1) + (s[i] != t[j]) });
+}
+
+void main()
+{
+	cin >> s >> t;
+	for (int i = 0; i < N; i++)
+		for (int j = 0; j < N; j++)
+			dp[i][j] = -1;
+
+	s.insert(s.begin(), '-');
+	t.insert(t.begin(), '-');
+	cout << calc(s.length() - 1, t.length() - 1) << en;
+	
+	for (int i = 1; i < s.size(); i++) {
+		for (int j = 1; j < t.size(); j++) {
+			cout << dp[i][j] << ' ';
+		}
+		cout << endl;
+	}
+}

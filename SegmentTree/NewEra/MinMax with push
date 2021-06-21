@@ -1,22 +1,21 @@
-const int SEGTREE_SIZE = 1e5;
+const int SEGTREE_SIZE = 2e5 + 10;
+const ll NO_OPERATION = 1e18 + 5;
+
 struct segtree {
- 
+
 	struct node {
 		ll set;
 		ll min;
 		ll max;
 	};
- 
+
 	vector<node> t;
 	int size;
- 
-	const ll LINF = 2000000000000000000;
-	ll const NO_OPERATION = 1e18 + 5;
-	node const NEUTRAL_ELEM = {NO_OPERATION, LINF, -LINF};
-	
-	node const ZERO = { NO_OPERATION , 0, 0 };
- 
- 
+
+	const node NEUTRAL_ELEM = { NO_OPERATION, LINF, -LINF };
+	const node ZERO = { NO_OPERATION , 0, 0 };
+
+
 	void modify_op(ll& a, ll b, ll len) {
 		if (b == NO_OPERATION)
 			return;
@@ -27,18 +26,18 @@ struct segtree {
 			a += b * len;
 		}
 	}
- 
- 
+
+
 	node sum_op(node &a, node &b) {
 		node res;
 		res.min = min(a.min, b.min);
 		res.max = max(a.max, b.max);
 		res.set = NO_OPERATION;
-		
+
 		return res;
 	}
- 
- 
+
+
 	void push(int v, int tl, int tr) {
 		if (t[v].set == NO_OPERATION || tr - tl == 1) {
 			return;
@@ -46,13 +45,16 @@ struct segtree {
 		int tm = (tr + tl) / 2;
 		modify_op(t[v * 2 + 1].set, t[v].set, 1);
 		modify_op(t[v * 2 + 1].min, t[v].set, 1);
- 
+		modify_op(t[v * 2 + 1].max, t[v].set, 1);
+
 		modify_op(t[v * 2 + 2].set, t[v].set, 1);
 		modify_op(t[v * 2 + 2].min, t[v].set, 1);
+		modify_op(t[v * 2 + 2].max, t[v].set, 1);
+
 		t[v].set = NO_OPERATION;
 	}
- 
- 
+
+
 	void init(int n) {
 		size = 1;
 		while (size < n) {
@@ -60,21 +62,21 @@ struct segtree {
 		}
 		t.assign(2 * size, ZERO);
 	}
- 
+
 	segtree(int n = SEGTREE_SIZE) {
 		init(n);
 	}
- 
+
 	segtree(vector<long long>& a) {
 		init(a.size());
 		build(a);
 	}
- 
- 
+
+
 	void build(vector<long long>& a, int v, int tl, int tr) {
 		if (tr - tl == 1) {
 			if (tl < a.size())
-				t[v] = ZERO;
+				t[v] = { NO_OPERATION, a[tl], a[tl] };
 			return;
 		}
 		int tm = (tr + tl) / 2;
@@ -82,55 +84,59 @@ struct segtree {
 		build(a, v * 2 + 2, tm, tr);
 		t[v] = sum_op(t[v * 2 + 1], t[v * 2 + 2]);
 	}
- 
+
 	void build(vector<long long>& a) {
 		build(a, 0, 0, size);
 	}
- 
+
 	void modify(int v, int tl, int tr, int l, int r, ll val) {
 		push(v, tl, tr);
 		if (tr <= l || tl >= r) {
 			return;
 		}
- 
+
 		if (l <= tl && tr <= r) {
 			modify_op(t[v].set, val, 1);
 			modify_op(t[v].min, val, 1);
+			modify_op(t[v].max, val, 1);
 			return;
 		}
- 
+
 		int tm = (tl + tr) / 2;
- 
+
 		modify(v * 2 + 1, tl, tm, l, r, val);
 		modify(v * 2 + 2, tm, tr, l, r, val);
- 
+
 		t[v] = sum_op(t[v * 2 + 1], t[v * 2 + 2]);
 	}
- 
+
 	void modify(int l, int r, ll val) {
 		modify(0, 0, size, l, r, val);
 	}
- 
+
 	node get(int v, int tl, int tr, int l, int r) {
 		push(v, tl, tr);
 		if (tr <= l || tl >= r) {
 			return NEUTRAL_ELEM;
 		}
- 
+
 		if (l <= tl && tr <= r) {
 			return t[v];
 		}
- 
+
 		int tm = (tl + tr) / 2;
- 
+
 		auto g1 = get(v * 2 + 1, tl, tm, l, r);
 		auto g2 = get(v * 2 + 2, tm, tr, l, r);
- 
+
 		return sum_op(g1, g2);
 	}
- 
+
 	node get(int l, int r) {
+		if (l >= r) {
+			return ZERO;
+		}
+
 		return get(0, 0, size, l, r);
 	}
 };
- 

@@ -13,6 +13,7 @@ struct segtree {
 	const ll LINF = 2000000000000000000;
 	ll const NO_OPERATION = 1e18 + 5;
 	node const NEUTRAL_ELEM = {NO_OPERATION, LINF, -LINF};
+	
 	node const ZERO = { NO_OPERATION , 0, 0 };
  
  

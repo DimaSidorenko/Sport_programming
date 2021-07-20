@@ -1,72 +1,98 @@
-const int MAXN = ...; // число вершин
-const int INF = 3e8; // константа-бесконечность
+typedef ll capType;
 
 struct edge {
-	int a, b, cap, flow;
+	int from, to;
+	capType f, c;
 };
 
-int source; // исток
-int sink; // сток
-int d[MAXN], used[MAXN], q[MAXN];
-vector<edge> e;
-vector<int> g[MAXN];
+vector<edge> es;
+vector<int> pt;
+vector<int> d;
+vector<vector<int>> g;
+vector<int> mark;
 
-void add_edge(int a, int b, int cap) {
-	edge e1 = { a, b, cap, 0 };
-	edge e2 = { b, a, 0, 0 };
-	g[a].push_back((int)e.size());
-	e.push_back(e1);
-	g[b].push_back((int)e.size());
-	e.push_back(e2);
+int n, m, s, t;
+
+
+void add_edge(int u, int v, capType cap, bool add = true) {
+	es.pb({ u, v, 0, cap });
+	g[u].pb(szof(es) - 1);
+
+	es.pb({ v, u, 0, 0 });
+	g[v].pb(szof(es) - 1);
+
+	if (add) {
+		add_edge(v, u, cap, false);
+	}
 }
 
-bool bfs() {	
-	queue<int> q;
-	fill(d, d + MAXN, -1);
-	d[source] = 0;
-	q.push(source);
-	while (!q.empty()) {
-		int v = q.front();
-		q.pop();	
-		for (auto id : g[v]) {
-			auto to = e[id].b;
-			if (d[to] == -1 && e[id].flow < e[id].cap) {
-				d[to] = d[v] + 1;
-				q.push(to);
-			}
-		}
-	}
-	return d[sink] != -1;
-}
 
-int dfs(int v, int flow) {
-	if (flow == 0)  return 0;	
-	if (v == sink)  
-		return flow;	
-		for (auto id : g[v]) {
-		auto to = e[id].b;
-		if (d[to] != d[v] + 1)  continue;
-		int pushed = dfs(to, min(flow, e[id].cap - e[id].flow));
-		if (pushed) {
-			e[id].flow += pushed;
-			e[id ^ 1].flow -= pushed;
-			return pushed;
+
+capType dfs(int v, capType flow = LINF) {
+	if (v == t) {
+		return flow;
+	}
+
+	for (pt[v]; pt[v] < szof(g[v]); pt[v]++) {
+		int id = g[v][pt[v]];
+		int u = es[id].to;
+			
+		if (d[v] + 1 != d[u] || es[id].c - es[id].f == 0) {
+			continue;
+		}
+
+		capType res = dfs(u, min(flow, es[id].c - es[id].f));
+		if (res > 0) {
+			es[id].f += res;
+			es[id ^ 1].f -= res;
+
+			return res;
 		}
 	}
+
 	return 0;
 }
 
-int dinic() {
-	int flow = 0;
-	while(bfs()) {
-		int pushed;
-		fill(used, used + MAXN, false);
-		while (true) {
-			int pushed = dfs(source, INF);
-			if (!pushed)
-				break;
-			flow += pushed;
+bool bfs() {
+	queue<int> q;
+	fill(all(d), -1);
+	q.push(s);
+	d[s] = 0;
+
+	while (!q.empty()) {
+		int v = q.front();
+		q.pop();
+
+		for (auto id : g[v]) {
+			if (es[id].c > es[id].f && d[es[id].to] == -1) {
+				d[es[id].to] = d[v] + 1;
+				q.push(es[id].to);
+			}
 		}
 	}
+	
+	return d[t] != -1;
+}
+
+
+capType dinic() {
+	capType flow = 0;
+	while (true) {
+		if (!bfs()) {
+			break;
+		}
+		fill(all(pt), 0);
+		
+		while (capType res = dfs(s)) {
+			flow += res;
+		}
+	}
+
 	return flow;
+}
+
+void init() {
+	g.resize(n);
+	pt.resize(n);
+	d.resize(n);
 }

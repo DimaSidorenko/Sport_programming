@@ -13,7 +13,7 @@ vector<int> mark;
 
 int n, m, s, t;
 
-//rewrite this if you have case directed graph
+//rewrite this if you have directed graph
 void add_edge(int u, int v, capType cap, bool add = true) {
 	es.pb({ u, v, 0, cap });
 	g[u].pb(szof(es) - 1);

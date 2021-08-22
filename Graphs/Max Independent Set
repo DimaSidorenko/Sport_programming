@@ -1,0 +1,226 @@
+#define _USE_MATH_DEFINES
+#include<iostream>
+#include<fstream>
+#include<string>
+#include<vector>
+#include<utility>
+#include<algorithm>
+#include<climits>
+#include<set>
+#include<map>
+#include<cmath>
+#include<iomanip>
+#include<iterator>
+#include<queue>
+#include<stack>
+#include<cctype>
+#include<deque>
+#include<time.h>
+#include<bitset>
+#include<random>
+#include <functional>
+#include<unordered_set>
+#include<unordered_map>
+#include<random>
+#include<numeric>
+#include<chrono>
+#include<sstream>
+#include <valarray> 
+#include<list>
+#include<complex>
+#include<cassert>
+#include<functional>
+
+typedef long long ll;
+typedef long double ld;
+typedef unsigned long long ull;
+
+#pragma warning(disable : 4996)
+#pragma comment(linker, "/STACK:16777216")
+#define pb push_back
+#define en '\n'
+#define forn(i,n) for(int i = 0;i<n;i++)
+#define all(x) (x).begin(),(x).end()
+#define rall(x) (x).rbegin(),(x).rend()
+#define vec vector
+#define pii pair<int,int>
+#define pll pair<ll,ll>
+#define szof(x) int(x.size())
+#define debug(x) cerr<<#x<<" = "<<x<<'\n' 
+
+
+using namespace std;
+
+const int INF = 1000000000 + 1e8;
+const ll LINF = 2000000000000000000;
+
+const int N = 500 + 10;
+const int MOD = 998244353;
+const ld EPS = 1e-8;
+
+vector<int> g[N];
+vector<int> g2[N];
+int a[N][N];
+bool used[N];
+int mt[N];
+
+int n, m;
+
+bool dfs(int v) {
+	if (used[v]) {
+		return false;
+	}
+	used[v] = 1;
+
+	for (auto to : g[v]) {
+		if (mt[to] == -1 || dfs(mt[to])) {
+			mt[to] = v;
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+
+void kuhn() {
+	fill(mt, mt + N, -1);
+	for (int i = 0; i < n; i++) {
+		fill(used, used + N, false);
+		dfs(i);
+	}
+}
+
+vector<int> mark1;
+vector<int> mark2;
+
+void dfs2(int v) {
+	if (mark1[v]) {
+		return;
+	}
+
+	mark1[v] = 1;
+
+	for (auto to : g[v]) {
+		if (mt[to] != -1) {
+			mark2[to] = 1;
+			dfs2(mt[to]);
+		}
+	}
+}
+
+
+
+void solve() {
+	cin >> n >> m;
+  
+  //init
+	{
+		for (int i = 0; i < n; i++) {
+			g[i].clear();
+			g2[i].clear();
+		}
+		mark1.clear();
+		mark2.clear();
+		fill(used, used + N, false);
+		fill(mt, mt + N, -1);
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				a[i][j] = 0;
+			}
+		}	
+	}
+ 
+ 
+ //read data
+	for (int i = 0; i < n; i++) {
+		while (1) {
+			int x;
+			cin >> x;
+			if (!x)
+				break;
+			x--;
+			a[i][x] = 1;
+		}
+	}
+  
+  //make invert graph
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			a[i][j] ^= 1;
+		
+			if (a[i][j] == 1) {
+				g[i].pb(j);
+			}
+		}
+	}
+
+  
+	kuhn();
+	
+	vector<int> free(n);
+  
+  //find min cover set
+	for (int i = 0; i < n; i++) {
+		for (auto v : g[i]) {
+			if (mt[v] == i) {
+				free[i] = 1;
+				g2[v].pb(i);
+			}
+			else {
+				g2[i].pb(v);
+			}
+		}
+	}
+
+	mark1.resize(n);
+	mark2.resize(m);
+
+	for (int i = 0; i < n; i++) {
+		if (!free[i]) {
+			dfs2(i);
+		}
+	}
+
+
+	cout << accumulate(all(mark1), 0) + m - accumulate(all(mark2), 0) << en;
+	cout << accumulate(all(mark1), 0) << ' ' << m - accumulate(all(mark2), 0) << en;
+  
+  //find addition for min cover set = max independent set
+	for (int i = 0; i < szof(mark1); i++) {
+		if (mark1[i]) {
+			cout << i + 1 << ' ';
+		}
+	}
+	cout << en;
+
+	for (int i = 0; i < szof(mark2); i++) {
+		if (!mark2[i]) {
+			cout << i + 1 << ' ';
+		}
+	}
+	cout << en << en;
+}
+
+
+signed main() {
+	srand(time(0));
+	ios::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
+
+	//freopen("input.in", "r", stdin);
+	//freopen("output.out", "w", stdout);
+
+#ifdef _DEBUG	
+	freopen("input.txt", "r", stdin);
+	//freopen("output.txt", "w", stdout);
+#endif
+
+	int tst = 1;
+	cin >> tst;
+	//precalc();
+	while (tst--) {
+		solve();
+	}
+}

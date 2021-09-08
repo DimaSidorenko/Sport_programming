@@ -1,0 +1,107 @@
+struct segtree {
+	struct node {
+		ll sum;
+		ll mx, second_mx;
+		ll cnt_mx = 0;
+		ll set = INF;
+	};
+ 
+	vector<node> t;
+	int size = 0;
+ 
+	segtree(vector<int> &a) {
+		size = szof(a);
+		t.resize(4 * size);
+ 
+		build(0, 0, size, a);
+	}
+ 
+	void push(int v, int tl, int tr) {
+		if (t[v].set >= t[v].mx) {
+			return;
+		}
+ 
+		t[v].sum -= (t[v].mx - t[v].set) * t[v].cnt_mx;
+		t[v].mx = t[v].set;
+		
+		if (tl + 1 != tr) {
+			t[v * 2 + 1].set = min(t[v * 2 + 1].set, t[v].set);
+			t[v * 2 + 2].set = min(t[v * 2 + 2].set, t[v].set);
+		}
+		t[v].set = INF;
+	}
+ 
+	node sum_op(node node1, node node2) {
+		if (node1.mx < node2.mx) {
+			swap(node1, node2);
+		}
+ 
+		if (node1.mx == node2.mx) {
+			node1.cnt_mx += node2.cnt_mx;
+			node2.mx = node2.second_mx;
+		}
+ 
+		return node{
+			node1.sum + node2.sum,
+			node1.mx,
+			max(node1.second_mx, node2.mx),
+			node1.cnt_mx
+		};
+	}
+ 
+	void build(int v, int tl, int tr, vector<int> &a) {
+		if (tl + 1 == tr) {
+			t[v] = { a[tl], a[tl], -1, 1 };
+			return;
+		}
+ 
+		int tm = (tl + tr) / 2;
+ 
+		build(v * 2 + 1, tl, tm, a);
+		build(v * 2 + 2, tm, tr, a);
+ 
+		t[v] = sum_op(t[v * 2 + 1], t[v * 2 + 2]);
+	}
+ 
+	void modify(int v, int tl, int tr, int l, int r, int val) {
+		push(v, tl, tr);
+		if (tl >= r || tr <= l || t[v].mx <= val) {
+			return;
+		}
+		if (l <= tl && tr <= r && t[v].second_mx < val && val < t[v].mx) {
+			t[v].set = val;
+			push(v, tl, tr);
+			return;
+		}
+ 
+		int tm = (tl + tr) / 2;
+		modify(v * 2 + 1, tl, tm, l, r, val);
+		modify(v * 2 + 2, tm, tr, l, r, val);
+ 
+		t[v] = sum_op(t[v * 2 + 1], t[v * 2 + 2]);
+	}
+ 
+	void modfiy(int l, int r, int val) {
+		modify(0, 0, size, l, r, val);
+	}
+ 
+	ll get(int v, int tl, int tr, int l, int r) {
+		push(v, tl, tr);
+		if (tl >= r || tr <= l) {
+			return 0;
+		}
+		if (l <= tl && tr <= r) {
+			return t[v].sum;
+		}
+ 
+		int tm = (tl + tr) / 2;
+		auto q1 = get(v * 2 + 1, tl, tm, l, r);
+		auto q2 = get(v * 2 + 2, tm, tr, l, r);
+ 
+		return q1 + q2;
+	}
+ 
+	ll get(int l, int r) {
+		return get(0, 0, size, l, r);
+	}
+};

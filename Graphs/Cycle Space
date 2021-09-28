@@ -1,0 +1,77 @@
+int n, m, q;
+vector<vector<pll>>g;
+vector<ll>xr;
+vector<bitset<64>>space;
+vector<bool>used;
+
+void dfs(int v, ll x = 0)
+{
+	xr[v] = x;
+	used[v] = true;
+	for (auto to : g[v])
+		if (!used[to.first])
+			dfs(to.first, x^to.second);
+		else
+			space.pb(bitset<64>(xr[v] ^ xr[to.first] ^ to.second));
+}
+
+vector<ll>basis, p;
+
+bool cmp(bitset<64> a, bitset<64>b)
+{
+	return a.to_ullong() < b.to_ullong();
+}
+
+void find_basis()
+{
+	sort(rall(space), cmp);
+	int t = 0;
+
+	for (int i = 63; i >= 0; i--)
+	{
+		for (int j = t + 1; j < space.size(); j++)
+			if (space[j][i])
+				swap(space[t], space[j]);
+		if (space[t][i])
+		{
+			basis.pb(space[t].to_ullong());
+			p.pb(i);
+			for (int j = t + 1; j < space.size(); j++)
+				if (space[j][i])
+					space[j] ^= basis.back();
+			t++;
+		}
+	}
+}
+
+void solve()
+{
+	cin >> n >> m >> q;
+	g.resize(n);
+	used.resize(n);
+	xr.resize(n);
+
+	for (int i = 0; i < m; i++)
+	{
+		ll u, v, w;
+		cin >> u >> v >> w;
+		u--, v--;
+		g[u].pb({ v,w });
+		g[v].pb({ u,w });
+	}
+
+	dfs(0);
+	find_basis();
+
+	while (q--)
+	{
+		int u, v;
+		cin >> u >> v;
+		u--, v--;
+		ll ans = xr[u] ^ xr[v];
+		for (int i = 0; i < basis.size(); i++)
+			if (ans&(1LL << p[i]))
+				ans ^= basis[i];
+		cout << ans << en;
+	}
+}

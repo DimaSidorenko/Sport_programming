@@ -1,0 +1,359 @@
+#define _USE_MATH_DEFINES
+#include<iostream>
+#include<fstream>
+#include<string>
+#include<vector>
+#include<utility>
+#include<algorithm>
+#include<climits>
+#include<set>
+#include<map>
+#include<cmath>
+#include<iomanip>
+#include<iterator>
+#include<queue>
+#include<stack>
+#include<cctype>
+#include<deque>
+#include<time.h>
+#include<bitset>
+#include<random>
+#include <functional>
+#include<unordered_set>
+#include<unordered_map>
+#include<random>
+#include<numeric>
+#include <chrono>
+#include<sstream>
+#include <valarray> 
+#include<list>
+#include<complex>
+#include<assert.h>
+
+//by Na'Vi DimaSidorenko
+
+typedef long long ll;
+typedef long double ld;
+typedef unsigned long long ull;
+
+#pragma warning(disable : 4996)
+#pragma comment(linker, "/STACK:16777216")
+#define pb push_back
+#define en '\n'
+#define forn(i,n) for(int i = 0;i<n;i++)
+#define for0(i,n) for(int i = 0;i<n;i++)
+#define all(x) (x).begin(),(x).end()
+#define rall(x) (x).rbegin(),(x).rend()
+#define vec vector
+#define pii pair<int,int>
+#define pll pair<ll,ll>
+#define szof(x) int(x.size())
+
+using namespace std;
+
+const int INF = 1e8;
+const ll LINF = 2000000000000000000;
+
+template<typename T> void print(vector<T>& a)
+{
+	for (int i = 0; i < a.size(); i++)
+		cout << a[i] << ' ';
+	cout << en;
+}
+
+template<typename T> void print(vector<vector<T>>& a)
+{
+	for (int i = 0; i < a.size(); i++)
+	{
+		for (int j = 0; j < a[i].size(); j++)
+			cout << a[i][j] << ' ';
+		cout << en;
+	}
+}
+
+template <typename T> void input(vector<T>& a)
+{
+	for (int i = 0; i < a.size(); i++)
+		cin >> a[i];
+}
+
+template<typename T> void input(vector<vector<T>>& a)
+{
+	for (int i = 0; i < a.size(); i++)
+		for (int j = 0; j < a[i].size(); j++)
+			cin >> a[i][j];
+}
+
+const double EPS = 1e-12;
+
+typedef double TCoord;
+
+class Point {
+public:
+	int x, y, denom;
+	Point(int xx = 0, int yy = 0, int dd = 0) : x(xx), y(yy), denom(dd) {}
+
+	bool operator==(Point p) {
+		return x * p.denom == p.x *denom && y * p.denom == p.y * denom;
+	}
+};
+
+class Point2 {
+public:
+	ld x, y;
+	Point2(ld xx = 0, ld yy = 0) : x(xx), y(yy) {}
+
+	double operator*(const Point2 &p) const { return x * p.y - y * p.x;}
+};
+
+bool operator < (Point2 a, Point2 b) {
+	return atan2(b.y, b.x) - atan2(a.y, a.x) > EPS;
+}
+
+class Line {
+public:
+	int a, b, c;
+	Line(int aa = 0, int bb = 0, int cc = 0) : a(aa), b(bb), c(cc) {}
+};
+
+Point intersect(Line l1, Line l2) {
+	Point res;
+	res.denom = l1.a * l2.b - l1.b * l2.a;
+	res.x = -(l1.c * l2.b - l2.c * l1.b);
+	res.y = -(l1.a * l2.c - l2.a * l1.c);
+
+	if (res.denom < 0) {
+		res.denom *= -1;
+		res.x *= -1;
+		res.y *= -1;
+	}
+	return res;
+}
+
+
+void solve(){
+	int n, M;
+	cin >> n >> M;
+	vector<Line> lines(n);
+	for (auto &to : lines) {
+		cin >> to.a >> to.b >> to.c;
+	}
+
+	if (n >= 3) {
+		cout << 100.0 << '%' << en;
+		return;
+	}
+	if (n == 2) {
+		Line l1 = lines[0];
+		Line l2 = lines[1];
+
+		Point middle = intersect(l1, l2);
+		if (middle.denom == 0 || 0 >= middle.x || middle.x >= M * middle.denom || 0 >= middle.y || middle.y >= M * middle.denom) {
+			cout << 100.0 << '%' << en;
+			return;
+		}
+
+		vector<Line> ls;
+		Line top(0, 1, -M);
+		Line bot(0, 1, 0);
+		Line right(1, 0, -M);
+		Line left(1, 0, 0);
+		ls.pb(right); ls.pb(left); ls.pb(top); ls.pb(bot);
+
+		vector<pair<Point, bool>> ps;
+		for (auto to : ls) {
+			auto temp = intersect(to, l1);
+			if (temp.denom == 0) {
+				continue;
+			}
+			if (temp.x > M * temp.denom || temp.x < 0) {
+				continue;
+			}
+			if (temp.y > M * temp.denom || temp.y < 0) {
+				continue;
+			}
+			bool is = false;
+			for (auto to : ps) {
+				is |= (temp == to.first);
+			}
+			if (!is)
+				ps.pb({ temp, true });
+		}
+
+		for (auto to : ls) {
+			auto temp = intersect(to, l2);
+			if (temp.denom == 0) {
+				continue;
+			}
+			if (temp.x > M * temp.denom || temp.x < 0) {
+				continue;
+			}
+			if (temp.y > M * temp.denom || temp.y < 0) {
+				continue;
+			}
+			bool is = false;
+			for (auto to : ps) {
+				is |= (temp == to.first);
+			}
+			if (!is)
+				ps.pb({ temp, true });
+		}
+
+		vector<Point> potential = { Point(0, 0, 1) , Point(0, M, 1) , Point(M, 0, 1) , Point(M, M, 1) };
+		for (auto pt : potential) {
+			bool is = false;
+			for (auto to : ps) {
+				is |= (pt == to.first);
+			}
+			if (!is)
+				ps.pb({ pt, false });
+		}
+
+		vector<pair<Point2, bool>> ps2;
+		for (auto to : ps) {
+			Point cur = to.first;
+			Point2 temp(cur.x / ld(cur.denom), cur.y / ld(cur.denom));
+			ps2.pb({ temp, to.second });
+		}
+
+
+		for (auto &to : ps2) {
+			to.first.x -= (middle.x / ld(middle.denom));
+			to.first.y -= (middle.y / ld(middle.denom));
+		}
+		
+		sort(all(ps2));
+		
+		//находим первый интервал треугольников
+		int j = 0;
+		while (!ps2[j].second) {
+			j++;
+		}
+
+		ld mn = INF;
+		for (int i = 0; i < 4; i++) {
+			ld s = 0;
+			do {
+				Point2 current = ps2[j % ps2.size()].first;
+				Point2 next = ps2[(j + 1) % ps2.size()].first;
+				s += abs(current * next) / 2.0;
+				j++;
+			} while (!ps2[j % ps2.size()].second);
+			mn = min(mn, s);
+		}	
+		assert(mn > 0);
+		cout << (ld(M * M) - mn) / ld(M * M) * 100 << '%' << en;
+	}
+	if (n == 1) {
+		Line l1 = lines[0];
+
+		vector<Line> ls;
+		Line top(0, 1, -M);
+		Line bot(0, 1, 0);
+		Line right(1, 0, -M);
+		Line left(1, 0, 0);
+		ls.pb(right); ls.pb(left); ls.pb(top); ls.pb(bot);
+
+		vector<pair<Point, bool>> ps;
+		for (auto to : ls) {
+			auto temp = intersect(to, l1);
+			if (temp.denom == 0) {
+				continue;
+			}
+			if (temp.x > M * temp.denom || temp.x < 0) {
+				continue;
+			}
+			if (temp.y > M * temp.denom || temp.y < 0) {
+				continue;
+			}
+			bool is = false;
+			for (auto to : ps) {
+				is |= (temp == to.first);
+			}
+			if (!is)
+				ps.pb({ temp, true });
+		}
+
+		//assert(ps.size() == 2);
+
+		Point2 middle;
+		middle.x = (ps[0].first.x / ld(ps[0].first.denom) + ps[1].first.x / ld(ps[1].first.denom)) / 2.0;
+		middle.y = (ps[0].first.y / ld(ps[0].first.denom) + ps[1].first.y / ld(ps[1].first.denom)) / 2.0;
+		//middle.denom = 2 * ps[0].first.denom;
+
+		vector<Point> potential = { Point(0, 0, 1) , Point(0, M, 1) , Point(M, 0, 1) , Point(M, M, 1) };
+		for (auto pt : potential) {
+			bool is = false;
+			for (auto to : ps) {
+				is |= (pt == to.first);
+			}
+			if (!is)
+				ps.pb({ pt, false });
+		}
+
+		/*for (int i = 0; i < ps.size(); i++) {
+			for (int j = i + 1; j < ps.size(); j++) {
+				if (ps[i].first == ps[j].first) {
+					assert(1 == 0);
+				}
+			}
+		}*/
+
+
+		vector<pair<Point2, bool>> ps2;
+		for (auto to : ps) {
+			Point cur = to.first;
+			Point2 temp(cur.x / ld(cur.denom), cur.y / ld(cur.denom));
+			ps2.pb({ temp, to.second });
+		}
+
+
+		for (auto &to : ps2) {
+			to.first.x -= middle.x;
+			to.first.y -= middle.y;
+		}
+
+		sort(all(ps2));
+
+		//находим первый интервал треугольников
+		int j = 0;
+		while (!ps2[j].second) {
+			j++;
+		}
+
+		ld mn = INF;
+		for (int i = 0; i < 2; i++) {
+			ld s = 0;
+			do {
+				Point2 current = ps2[j % ps2.size()].first;
+				Point2 next = ps2[(j + 1) % ps2.size()].first;
+				s += abs(current * next) / 2.0;
+				j++;
+			} while (!ps2[j % ps2.size()].second);
+			mn = min(mn, s);
+		}
+		assert(mn > EPS);
+		cout << (ld(M * M) - mn) / ld(M * M) * 100 << '%' << en;
+	}
+}
+
+
+int main() {
+	srand(time(0));
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cout.setf(ios::fixed);
+	cout.precision(8);
+	//freopen("kth.in", "r", stdin);
+	//freopen("output.txt", "w", stdout);
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin);
+	//freopen("kth.out", "w", stdout);
+#endif
+	int t = 1;
+	cin >> t;
+	while (t--) {
+		solve();
+	}
+}

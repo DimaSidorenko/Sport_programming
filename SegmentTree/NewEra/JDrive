@@ -81,7 +81,7 @@ struct segtree {
 		t[v] = sum_op(t[v * 2 + 1], t[v * 2 + 2]);
 	}
  
-	void modfiy(int l, int r, int val) {
+	void modify(int l, int r, int val) {
 		modify(0, 0, size, l, r, val);
 	}
  

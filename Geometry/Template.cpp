@@ -16,15 +16,15 @@ public:
     Point turn(double ang) const { return turn(sin(ang), cos(ang)); }
     Point inverse() const { return Point(-x, -y); }
     
-    TCoord operator*(const Point &p) const { return x * p.y - y * p.x; }
-    TCoord operator%(const Point &p) const { return x * p.x + y * p.y; }
+    TCoord operator%(const Point &p) const { return x * p.y - y * p.x; }
+    TCoord operator*(const Point &p) const { return x * p.x + y * p.y; }
     
     
     bool operator!=(const Point &p) const { return fabsl(x - p.x) > EPS || fabsl(y - p.y) > EPS; }
     bool operator==(const Point &p) const { return fabsl(x - p.x) < EPS && fabsl(y - p.y) < EPS; }
     
     friend bool cmpAngle(const Point &a, const Point &b) {
-        TCoord m = a * b;
+        TCoord m = a % b;
         return (fabsl(m) > EPS ? m > 0 : a.getLenSq() < b.getLenSq());
     }
     friend bool cmpCoord(const Point &a, const Point &b) {
